@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PunishmentController;
 use App\Http\Controllers\RoladorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -29,4 +30,15 @@ Route::controller(RoladorController::class)
         Route::delete('{rolador}', 'destroy');
     })
     ->prefix('roladores')
+    ->middleware('auth:sanctum');
+
+Route::controller(PunishmentController::class)
+    ->group(function () {
+        Route::get('', 'index');
+        Route::get('{punishment}', 'show');
+        Route::post('', 'store');
+        Route::patch('{punishment}', 'update');
+        Route::delete('{punishment}', 'destroy');
+    })
+    ->prefix('punishments')
     ->middleware('auth:sanctum');
