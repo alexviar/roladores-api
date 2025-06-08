@@ -10,9 +10,14 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Category::query();
+        $query->when($request->get('search'), function ($query, $search) {
+            $query->where('name', 'like', "%$search%");
+        });
+
+        return $query->paginate();
     }
 
     /**
@@ -28,7 +33,7 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return Category::create($request->all());
     }
 
     /**
