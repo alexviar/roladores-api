@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PunishmentController;
+use App\Http\Controllers\RentalPeriodController;
 use App\Http\Controllers\RoladorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,17 @@ Route::controller(PunishmentController::class)
         Route::post('', 'store');
         Route::patch('{punishment}', 'update');
         Route::delete('{punishment}', 'destroy');
+    })
+    ->prefix('punishments')
+    ->middleware('auth:sanctum');
+
+Route::controller(RentalPeriodController::class)
+    ->group(function () {
+        Route::get('', 'index');
+        Route::get('{rentalPeriod}', 'show');
+        Route::post('', 'store');
+        Route::patch('{rentalPeriod}', 'update');
+        Route::delete('{rentalPeriod}', 'destroy');
     })
     ->prefix('punishments')
     ->middleware('auth:sanctum');
