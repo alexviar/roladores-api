@@ -12,4 +12,22 @@ class Rolador extends Model
 {
     /** @use HasFactory<\Database\Factories\RoladorFactory> */
     use HasFactory;
+
+    #region Relationships
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    #endregion
+
+    public function toArray()
+    {
+        /** @var LocalFilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+        $array = parent::toArray();
+        $array['photo'] = $disk->url($array['photo']);
+        return $array;
+    }
 }
