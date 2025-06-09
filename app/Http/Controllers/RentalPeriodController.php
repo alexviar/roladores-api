@@ -56,6 +56,22 @@ class RentalPeriodController extends Controller
     }
 
     /**
+     * Update the specified resource in storage.
+     */
+    public function markAsPaid(Request $request, RentalPeriod $rentalPeriod)
+    {
+        $request->validate([
+            'password' => ['required', 'current_password']
+        ]);
+
+        $rentalPeriod->update([
+            'payment_date' => now()
+        ]);
+
+        return $rentalPeriod;
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(RentalPeriod $rentalPeriod)

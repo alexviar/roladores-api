@@ -15,6 +15,13 @@ class RentalPeriod extends Model
     /** @use HasFactory<\Database\Factories\RentalPeriodFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'start_date',
+        'end_date',
+        'payment_date',
+        'rolador_id',
+    ];
+
     protected $appends = [
         'status',
     ];

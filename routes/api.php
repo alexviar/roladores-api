@@ -53,12 +53,13 @@ Route::controller(PunishmentController::class)
     });
 
 Route::controller(RentalPeriodController::class)
-    ->prefix('punishments')
+    ->prefix('rental-periods')
     ->middleware('auth:sanctum')
     ->group(function () {
         Route::get('', 'index');
         Route::get('{rentalPeriod}', 'show');
         Route::post('', 'store');
         Route::patch('{rentalPeriod}', 'update');
+        Route::patch('{rentalPeriod}/paid', 'markAsPaid');
         Route::delete('{rentalPeriod}', 'destroy');
     });
