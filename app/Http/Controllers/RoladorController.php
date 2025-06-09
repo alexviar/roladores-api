@@ -2,22 +2,43 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RentalPeriodStatuses;
 use App\Models\Rolador;
 use Illuminate\Http\Request;
 
 class RoladorController extends Controller
 {
+
+    protected function applyFilters(Request $request, $query)
+    {
+        $query->when($request->get('search'), function ($query, $search) {
+            $query->where('name', 'like', "%$search%");
+        });
+
+        $query->when($request->input('filter.status'), function ($query, $status) {
+            if ($status === 'punished') {
+                $query->whereHas('currentPunishment');
+            } else {
+                $queryMethod = $status == RentalPeriodStatuses::Paid->value ? 'isPaid' : 'isUnpaid';
+                $query->whereDoesntHave('currentPunishment')
+                    ->whereHas('currentRentalPeriod', fn($query) => $query->$queryMethod());
+            }
+        });
+
+        $query->latest('id');
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $query = Rolador::query();
-        $query->when(request('search'), function ($query, $search) {
-            $query->where('name', 'like', "%$search%");
-        });
-        $query->with('category');
-        $result = $query->paginate(10);
+
+        $this->applyFilters($request, $query);
+
+        $query->with(['category', 'currentPunishment', 'currentRentalPeriod']);
+        $result = $query->paginate(12);
         return $result;
     }
 
@@ -34,7 +55,13 @@ class RoladorController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $payload = $request->all();
+
+        /** @var \Illuminate\Http\UploadedFile $photo */
+        $photo = $payload['photo'];
+        $payload['photo'] = $photo->store('roladores', 'public');
+
+        return Rolador::create($payload);
     }
 
     /**
