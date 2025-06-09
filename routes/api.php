@@ -7,7 +7,13 @@ use App\Http\Controllers\RoladorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
+Route::controller(AuthController::class)
+    ->prefix('auth')
+    ->middleware('auth:sanctum')
+    ->group(function () {
+        Route::post('login', 'login')->withoutMiddleware('auth:sanctum');
+        Route::post('logout', 'logout');
+        Route::get('user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
