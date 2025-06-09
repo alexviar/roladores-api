@@ -69,7 +69,8 @@ class RoladorController extends Controller
      */
     public function show(Rolador $rolador)
     {
-        //
+        $rolador->load(['category', 'currentPunishment', 'currentRentalPeriod']);
+        return $rolador;
     }
 
     /**
