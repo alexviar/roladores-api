@@ -13,6 +13,13 @@ class Punishment extends Model
     /** @use HasFactory<\Database\Factories\PunishmentFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'rolador_id',
+        'start_date',
+        'end_date',
+        'description',
+    ];
+
     #region Relationships
 
     public function rolador(): BelongsTo

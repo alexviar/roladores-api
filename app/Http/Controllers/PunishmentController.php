@@ -28,7 +28,13 @@ class PunishmentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'password' => ['required', 'current_password']
+        ]);
+
+        return Punishment::create([
+            'start_date' => now(),
+        ] + $request->all());
     }
 
     /**
