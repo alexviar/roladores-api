@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\RentalPeriodStatuses;
 use App\Models\Rolador;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
 class RoladorController extends Controller
@@ -92,9 +93,9 @@ class RoladorController extends Controller
         $payload = $request->all();
 
         if (Arr::has($payload, 'photo')) {
-        /** @var \Illuminate\Http\UploadedFile $photo */
+            /** @var \Illuminate\Http\UploadedFile $photo */
             $photo = Arr::get($payload, 'photo');
-        $payload['photo'] = $photo->store('roladores', 'public');
+            $payload['photo'] = $photo->store('roladores', 'public');
         }
 
         $oldPhoto = $rolador->photo;
@@ -113,6 +114,11 @@ class RoladorController extends Controller
      */
     public function destroy(Rolador $rolador)
     {
-        //
+        $rolador->delete();
+        if ($rolador->photo) {
+            Storage::disk('public')->delete($rolador->photo);
+        }
+
+        return response()->noContent();
     }
 }
