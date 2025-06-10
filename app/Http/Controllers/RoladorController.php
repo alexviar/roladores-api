@@ -62,7 +62,9 @@ class RoladorController extends Controller
         $photo = $payload['photo'];
         $payload['photo'] = $photo->store('roladores', 'public');
 
-        return Rolador::create($payload);
+        $rolador = Rolador::create($payload);
+        $rolador->load(['category']);
+        return $rolador;
     }
 
     /**
