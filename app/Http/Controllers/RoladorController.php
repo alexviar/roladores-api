@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\RentalPeriodStatuses;
 use App\Models\Rolador;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class RoladorController extends Controller
@@ -92,6 +94,8 @@ class RoladorController extends Controller
     {
         $payload = $request->all();
 
+        Gate::allowIf(fn(User $user) => $user->email === env('ADMIN_EMAIL'));
+
         if (Arr::has($payload, 'photo')) {
             /** @var \Illuminate\Http\UploadedFile $photo */
             $photo = Arr::get($payload, 'photo');
@@ -114,6 +118,8 @@ class RoladorController extends Controller
      */
     public function destroy(Rolador $rolador)
     {
+        Gate::allowIf(fn(User $user) => $user->email === env('ADMIN_EMAIL'));
+
         $rolador->delete();
         if ($rolador->photo) {
             Storage::disk('public')->delete($rolador->photo);
