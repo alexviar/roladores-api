@@ -94,7 +94,7 @@ class RoladorController extends Controller
     {
         $payload = $request->all();
 
-        Gate::allowIf(fn(User $user) => $user->email === env('ADMIN_EMAIL'));
+        Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
 
         if (Arr::has($payload, 'photo')) {
             /** @var \Illuminate\Http\UploadedFile $photo */
@@ -118,7 +118,7 @@ class RoladorController extends Controller
      */
     public function destroy(Rolador $rolador)
     {
-        Gate::allowIf(fn(User $user) => $user->email === env('ADMIN_EMAIL'));
+        Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
 
         $rolador->delete();
         if ($rolador->photo) {
