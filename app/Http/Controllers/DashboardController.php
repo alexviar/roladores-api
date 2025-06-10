@@ -103,8 +103,7 @@ class DashboardController extends Controller
 
         $paymentStats = RentalPeriod::whereBetween('end_date', [$startDate, $endDate])
             ->selectRaw('
-                COUNT(DISTINCT rolador_id) as total_roladores,
-                SUM(IF(payment_date IS NOT NULL AND payment_date <= end_date, 1, 0)) as paying_roladores
+                COUNT(DISTINCT rolador_id) as paying_roladores
             ')
             ->first();
 
@@ -113,7 +112,7 @@ class DashboardController extends Controller
                 'total_generated' => (float) $incomeStats,
             ],
             'payment_stats' => [
-                'total_roladores' => (int) ($paymentStats->total_roladores ?? 0),
+                'total_roladores' => (int) Rolador::count(),
                 'paying_roladores' => (int) ($paymentStats->paying_roladores ?? 0),
             ]
         ];
