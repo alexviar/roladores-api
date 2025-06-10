@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PunishmentController;
 use App\Http\Controllers\RentalPeriodController;
 use App\Http\Controllers\RoladorController;
@@ -17,6 +18,14 @@ Route::controller(AuthController::class)
         Route::get('user', function (Request $request) {
             return $request->user();
         });
+    });
+
+Route::controller(DashboardController::class)
+    ->prefix('dashboard')
+    ->middleware('auth:sanctum')
+    ->group(function () {
+        Route::get('weekly-stats', 'weeklyStats');
+        Route::get('category-distribution', 'categoryDistribution');
     });
 
 Route::controller(CategoryController::class)
@@ -35,7 +44,7 @@ Route::controller(RoladorController::class)
     ->middleware('auth:sanctum')
     ->group(function () {
         Route::get('', 'index');
-        Route::get('{rolador}', 'show');
+        Route::get('{rolador}', 'show')->withoutMiddleware('auth:sanctum');
         Route::post('', 'store');
         Route::patch('{rolador}', 'update');
         Route::delete('{rolador}', 'destroy');
