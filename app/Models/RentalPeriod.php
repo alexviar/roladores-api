@@ -19,6 +19,7 @@ class RentalPeriod extends Model
         'start_date',
         'end_date',
         'payment_date',
+        'amount_due',
         'rolador_id',
     ];
 
@@ -65,8 +66,9 @@ class RentalPeriod extends Model
     #[Scope]
     public function isCurrent(Builder $query): void
     {
-        $query->where('start_date', '<=', now())
-            ->where('end_date', '>=', now());
+        $now = now()->startOfDay();
+        $query->where('start_date', '<=', $now)
+            ->where('end_date', '>=', $now);
     }
 
     /**

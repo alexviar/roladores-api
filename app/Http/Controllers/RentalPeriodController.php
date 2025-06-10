@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\RentalPeriod;
+use App\Models\Rolador;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class RentalPeriodController extends Controller
 {
@@ -28,7 +30,23 @@ class RentalPeriodController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'password' => ['required', 'current_password'],
+            'rolador_id' => ['required', Rule::exists(Rolador::class, 'id')],
+        ]);
+
+        $rolador = Rolador::find($request->rolador_id);
+
+        $today = today();
+        $rentalPeriod = RentalPeriod::create([
+            'payment_date' => $today,
+            'start_date' => $today,
+            'end_date' => $today,
+            'amount_due' => $rolador->weekly_payment,
+            'rolador_id' => $rolador->id
+        ]);
+
+        return $rentalPeriod;
     }
 
     /**
