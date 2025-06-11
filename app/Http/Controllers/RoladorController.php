@@ -22,10 +22,12 @@ class RoladorController extends Controller
         $query->when($request->input('filter.status'), function ($query, $status) {
             if ($status === 'punished') {
                 $query->whereHas('currentPunishment');
-            } else {
-                $queryMethod = $status == RentalPeriodStatuses::Paid->value ? 'isPaid' : 'isUnpaid';
+            } else if ($status === 'paid') {
                 $query->whereDoesntHave('currentPunishment')
-                    ->whereHas('currentRentalPeriod', fn($query) => $query->$queryMethod());
+                    ->whereHas('currentRentalPeriod');
+            } else if ($status === 'unpaid') {
+                $query->whereDoesntHave('currentPunishment')
+                    ->whereDoesnHave('currentRentalPeriod');
             }
         });
 
