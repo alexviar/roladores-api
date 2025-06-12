@@ -61,6 +61,8 @@ class RoladorController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
+
         $payload = $request->all();
 
         /** @var \Illuminate\Http\UploadedFile $photo */
