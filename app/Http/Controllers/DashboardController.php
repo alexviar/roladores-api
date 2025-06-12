@@ -28,7 +28,7 @@ class DashboardController extends Controller
         $endDate = Date::parse($date)->endOfDay();
 
         $prevStartDate = $startDate->copy()->subDay();
-        $prevEndDate = $prevStartDate->copy()->subDay();
+        $prevEndDate = $prevStartDate->copy()->endOfDay();
 
         // Get current week stats
         $currentWeekStats = $this->getWeekStats($startDate, $endDate);
