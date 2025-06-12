@@ -27,7 +27,7 @@ class RoladorController extends Controller
                     ->whereHas('currentRentalPeriod');
             } else if ($status === 'unpaid') {
                 $query->whereDoesntHave('currentPunishment')
-                    ->whereDoesnHave('currentRentalPeriod');
+                    ->whereDoesntHave('currentRentalPeriod');
             }
         });
 
