@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\RentalPeriod;
 use App\Models\Rolador;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class DashboardController extends Controller
 {
@@ -18,6 +20,8 @@ class DashboardController extends Controller
      */
     public function dailyStats(Request $request)
     {
+        Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
+
         $request->validate([
             'date' => 'required|date'
         ]);
@@ -62,6 +66,8 @@ class DashboardController extends Controller
      */
     public function categoryDistribution()
     {
+        Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
+
         $limit = 5;
         $count = Category::count();
 
