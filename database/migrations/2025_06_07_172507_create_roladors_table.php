@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('photo');
             $table->decimal('weekly_payment', 8, 2);
-            $table->string('activity_description')->nullable();
+            $table->string('activity_description', 255)->nullable();
             $table->foreignIdFor(Category::class)->constrained();;
 
             $table->timestamps();
