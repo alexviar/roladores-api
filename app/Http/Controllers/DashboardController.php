@@ -16,23 +16,19 @@ class DashboardController extends Controller
      * Get weekly statistics including total generated and number of paying roladores,
      * along with trend comparison to previous week
      */
-    public function weeklyStats(Request $request)
+    public function dailyStats(Request $request)
     {
         $request->validate([
-            'week' => 'required|integer|min:1|max:53',
-            'year' => 'required|integer|min:2000'
+            'date' => 'required|date'
         ]);
 
-        $week = $request->input('week');
-        $year = $request->input('year');
+        $date = $request->input('date');
 
-        // Get start and end dates for the requested week
-        $startDate = Date::now()->setISODate($year, $week)->startOfWeek();
-        $endDate = $startDate->copy()->endOfWeek();
+        $startDate = Date::parse($date)->startOfDay();
+        $endDate = Date::parse($date)->endOfDay();
 
-        // Get start and end dates for the previous week
-        $prevStartDate = $startDate->copy()->subWeek();
-        $prevEndDate = $prevStartDate->copy()->endOfWeek();
+        $prevStartDate = $startDate->copy()->subDay();
+        $prevEndDate = $prevStartDate->copy()->subDay();
 
         // Get current week stats
         $currentWeekStats = $this->getWeekStats($startDate, $endDate);
@@ -81,7 +77,6 @@ class DashboardController extends Controller
 
         // If we have more than 12 categories, group the smaller ones into "Others"
         if ($count > $limit) {
-            logger('', $topCategories->pluck('id')->toArray());
             $otherCategories = Rolador::whereNotIn('category_id', $topCategories->pluck('id')->toArray())->count();
 
             $topCategories->push([

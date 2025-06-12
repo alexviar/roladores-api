@@ -24,7 +24,7 @@ Route::controller(DashboardController::class)
     ->prefix('dashboard')
     ->middleware('auth:sanctum')
     ->group(function () {
-        Route::get('weekly-stats', 'weeklyStats');
+        Route::get('daily-stats', 'dailyStats');
         Route::get('category-distribution', 'categoryDistribution');
     });
 
