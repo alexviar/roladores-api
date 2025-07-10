@@ -61,7 +61,13 @@ class RoladorController extends Controller
      */
     public function store(Request $request)
     {
-        $payload = $request->all();
+        $payload = $request->validate([
+            'name' => 'required|string|unique:roladores,name',
+            'category_id' => 'required|integer',
+            'photo' => 'required|image',
+            'activity_description' => 'required|string|max:255',
+            'weekly_payment' => 'required|numeric',
+        ]);
 
         /** @var \Illuminate\Http\UploadedFile $photo */
         $photo = $payload['photo'];
