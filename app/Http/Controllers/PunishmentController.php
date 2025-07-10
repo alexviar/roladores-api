@@ -28,13 +28,16 @@ class PunishmentController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'password' => ['required', 'current_password']
+        $payload = $request->validate([
+            'password' => ['required', 'current_password'],
+            'description' => ['required', 'string', 'max:255'],
+            'end_date' => ['required', 'date'],
+            'rolador_id' => ['required', 'integer', 'exists:roladors,id'],
         ]);
 
         return Punishment::create([
             'start_date' => now(),
-        ] + $request->all());
+        ] + $payload);
     }
 
     /**
