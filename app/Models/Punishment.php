@@ -45,4 +45,12 @@ class Punishment extends Model
     }
 
     #endregion
+
+    public function casts()
+    {
+        return [
+            'start_date' => 'datetime',
+            'end_date' => 'datetime'
+        ];
+    }
 }
