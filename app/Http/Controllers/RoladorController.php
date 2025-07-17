@@ -62,10 +62,10 @@ class RoladorController extends Controller
     public function store(Request $request)
     {
         $payload = $request->validate([
-            'name' => 'required|string|unique:roladores,name',
+            'name' => 'required|string|unique:roladors,name',
             'category_id' => 'required|integer',
             'photo' => 'required|image',
-            'activity_description' => 'required|string|max:255',
+            'activity_description' => 'nullable|string|max:255',
             'weekly_payment' => 'required|numeric',
         ]);
 
@@ -100,7 +100,13 @@ class RoladorController extends Controller
      */
     public function update(Request $request, Rolador $rolador)
     {
-        $payload = $request->all();
+        $payload = $request->validate([
+            'name' => 'required|string|unique:roladors,name,' . $rolador->id,
+            'category_id' => 'required|integer',
+            'photo' => 'sometimes|required|image',
+            'activity_description' => 'nullable|string|max:255',
+            'weekly_payment' => 'required|numeric',
+        ]);
 
         Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
 
