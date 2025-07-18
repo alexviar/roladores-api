@@ -108,8 +108,6 @@ class RoladorController extends Controller
             'weekly_payment' => 'required|numeric',
         ]);
 
-        Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
-
         if (Arr::has($payload, 'photo')) {
             /** @var \Illuminate\Http\UploadedFile $photo */
             $photo = Arr::get($payload, 'photo');
