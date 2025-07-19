@@ -72,3 +72,26 @@ Route::controller(RentalPeriodController::class)
         Route::patch('{rentalPeriod}/paid', 'markAsPaid');
         Route::delete('{rentalPeriod}', 'destroy');
     });
+
+Route::controller(\App\Http\Controllers\CreditController::class)
+    ->prefix('credits')
+    ->middleware('auth:sanctum')
+    ->group(function () {
+        Route::get('', 'index');
+        Route::get('{credit}', 'show');
+        Route::post('', 'store');
+        Route::patch('{credit}', 'update');
+        Route::patch('{credit}/reset', 'resetCredit');
+        Route::delete('{credit}', 'destroy');
+
+        Route::controller(\App\Http\Controllers\CreditPaymentController::class)
+            ->prefix('{credit}/payments')
+            ->middleware('auth:sanctum')
+            ->group(function () {
+                Route::get('', 'index');
+                Route::get('{payment}', 'show');
+                Route::post('', 'store');
+                Route::patch('{payment}', 'update');
+                Route::delete('{payment}', 'destroy');
+            });
+    });

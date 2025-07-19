@@ -132,6 +132,13 @@ class RoladorController extends Controller
     {
         Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
 
+        // Verificar que no tenga créditos activos
+        if ($rolador->credits()->exists()) {
+            return response()->json([
+                'message' => 'No se puede eliminar el rolador porque tiene créditos registrados.'
+            ], 409);
+        }
+
         $rolador->delete();
         if ($rolador->photo) {
             Storage::disk('public')->delete($rolador->photo);

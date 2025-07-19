@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Filesystem\LocalFilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,6 +24,23 @@ class Rolador extends Model
         'activity_description',
         'weekly_payment',
     ];
+
+    protected $appends = [
+        'credits_summary',
+    ];
+
+    public function creditsSummary(): Attribute
+    {
+        return Attribute::get(function () {
+            $totalActiveCredits = $this->credits()->where('balance', '>', 0)->count();
+            $totalBalance = $this->credits()->sum('balance');
+
+            return [
+                'activeCreditsCount' => (int) $totalActiveCredits,
+                'totalPendingBalance' => (float) $totalBalance,
+            ];
+        });
+    }
 
     #region Relationships
 
@@ -39,6 +59,11 @@ class Rolador extends Model
     {
         return $this->hasOne(RentalPeriod::class)
             ->isCurrent();
+    }
+
+    public function credits(): HasMany
+    {
+        return $this->hasMany(Credit::class);
     }
 
     #endregion
