@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\RentalPeriod;
 use App\Models\Rolador;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class RentalPeriodController extends Controller
@@ -92,8 +94,16 @@ class RentalPeriodController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(RentalPeriod $rentalPeriod)
+    public function destroy(Request $request, RentalPeriod $rentalPeriod)
     {
-        //
+        Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
+
+        $request->validate([
+            'password' => 'required|current_password'
+        ]);
+
+        $rentalPeriod->delete();
+
+        return response()->noContent();
     }
 }
