@@ -40,7 +40,7 @@ class PunishmentController extends Controller
         ] + $payload);
 
         $user = $request->user();
-        $desc = $user->name . " registró un castigo para " . ($pubishment->rolador->name ?? 'rolador desconocido') . ": '" . $payload['description'] . "' hasta el " . date('d/m/Y', strtotime($payload['end_date'])) . ".";
+        $desc = $user->name . " registró un castigo para " . ($punishment->rolador->name ?? 'rolador desconocido') . ": '" . $payload['description'] . "' hasta el " . date('d/m/Y', strtotime($payload['end_date'])) . ".";
         activity()
             ->performedOn($punishment)
             ->causedBy($user)
