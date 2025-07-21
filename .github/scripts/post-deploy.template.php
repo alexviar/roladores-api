@@ -47,6 +47,7 @@ $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 
 // ==================== EJECUTAR COMANDOS ====================
 $commands = [
+    ['optimize:clear'],
     ['migrate', '--force' => true],
     file_exists(__DIR__ . '/storage') ? [] : ['storage:link'],
     ['optimize']
