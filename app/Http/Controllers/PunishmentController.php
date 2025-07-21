@@ -35,9 +35,21 @@ class PunishmentController extends Controller
             'rolador_id' => ['required', 'integer', 'exists:roladors,id'],
         ]);
 
-        return Punishment::create([
+        $punishment = Punishment::create([
             'start_date' => now(),
         ] + $payload);
+
+        $user = $request->user();
+        $desc = $user->name . " registró un castigo para " . ($pubishment->rolador->name ?? 'rolador desconocido') . ": '" . $payload['description'] . "' hasta el " . date('d/m/Y', strtotime($payload['end_date'])) . ".";
+        activity()
+            ->performedOn($punishment)
+            ->causedBy($user)
+            ->withProperties([
+                'attributes' => $punishment->getAttributes()
+            ])
+            ->log($desc);
+
+        return $punishment;
     }
 
     /**

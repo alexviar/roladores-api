@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Activitylog\Models\Activity;
 
 class DashboardController extends Controller
 {
@@ -92,6 +93,36 @@ class DashboardController extends Controller
         }
 
         return response()->json($topCategories);
+    }
+
+    /**
+     * Devuelve el log de actividad reciente (últimas 50 acciones)
+     */
+    public function activityLog(Request $request)
+    {
+        Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
+
+        $activities = Activity::with('causer')
+            ->latest()
+            ->limit(50)
+            ->get()
+            ->map(function ($activity) {
+                return [
+                    'id' => $activity->id,
+                    'description' => $activity->description,
+                    'causer' => $activity->causer ? [
+                        'id' => $activity->causer->id,
+                        'name' => $activity->causer->name,
+                        'email' => $activity->causer->email,
+                    ] : null,
+                    'subject_type' => $activity->subject_type,
+                    'subject_id' => $activity->subject_id,
+                    'properties' => $activity->properties,
+                    'created_at' => $activity->created_at,
+                ];
+            });
+
+        return response()->json($activities);
     }
 
     /**

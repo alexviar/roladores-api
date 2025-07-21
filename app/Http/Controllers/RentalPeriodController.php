@@ -36,9 +36,7 @@ class RentalPeriodController extends Controller
             'password' => ['required', 'current_password'],
             'rolador_id' => ['required', Rule::exists(Rolador::class, 'id')],
         ]);
-
         $rolador = Rolador::find($request->rolador_id);
-
         $today = today();
         $rentalPeriod = RentalPeriod::create([
             'payment_date' => $today,
@@ -47,7 +45,15 @@ class RentalPeriodController extends Controller
             'amount_due' => $rolador->weekly_payment,
             'rolador_id' => $rolador->id
         ]);
-
+        $user = $request->user();
+        $desc = $user->name . " registró un pago semanal de $" . number_format($rentalPeriod->amount_due, 2) . " para " . ($rolador->name ?? 'rolador desconocido') . ".";
+        activity()
+            ->performedOn($rentalPeriod)
+            ->causedBy($user)
+            ->withProperties([
+                'attributes' => $rentalPeriod->getAttributes()
+            ])
+            ->log($desc);
         return $rentalPeriod;
     }
 
@@ -83,11 +89,21 @@ class RentalPeriodController extends Controller
         $request->validate([
             'password' => ['required', 'current_password']
         ]);
-
+        $old = $rentalPeriod->getOriginal();
         $rentalPeriod->update([
             'payment_date' => now()
         ]);
-
+        $user = $request->user();
+        $rolador = $rentalPeriod->rolador;
+        $desc = $user->name . " marcó como pagado el periodo semanal de " . ($rolador->name ?? 'rolador desconocido') . " por $" . number_format($rentalPeriod->amount_due, 2) . ".";
+        activity()
+            ->performedOn($rentalPeriod)
+            ->causedBy($user)
+            ->withProperties([
+                'old' => $old,
+                'attributes' => $rentalPeriod->getAttributes()
+            ])
+            ->log($desc);
         return $rentalPeriod;
     }
 
@@ -97,13 +113,20 @@ class RentalPeriodController extends Controller
     public function destroy(Request $request, RentalPeriod $rentalPeriod)
     {
         Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
-
         $request->validate([
             'password' => 'required|current_password'
         ]);
-
+        $old = $rentalPeriod->getAttributes();
+        $rolador = $rentalPeriod->rolador;
+        $desc = $request->user()->name . " eliminó el pago semanal de " . ($rolador->name ?? 'rolador desconocido') . " por $" . number_format($rentalPeriod->amount_due, 2) . ".";
         $rentalPeriod->delete();
-
+        activity()
+            ->performedOn($rentalPeriod)
+            ->causedBy($request->user())
+            ->withProperties([
+                'old' => $old
+            ])
+            ->log($desc);
         return response()->noContent();
     }
 }

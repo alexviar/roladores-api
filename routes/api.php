@@ -26,6 +26,7 @@ Route::controller(DashboardController::class)
     ->group(function () {
         Route::get('daily-stats', 'dailyStats');
         Route::get('category-distribution', 'categoryDistribution');
+        Route::get('activity-log', 'activityLog');
     });
 
 Route::controller(CategoryController::class)

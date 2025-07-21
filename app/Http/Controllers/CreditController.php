@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Spatie\Activitylog\Models\Activity;
 
 class CreditController extends Controller
 {
@@ -49,10 +50,19 @@ class CreditController extends Controller
     {
         $payload = $this->preparePayload($request);
 
-        return DB::transaction(function () use ($payload) {
+        return DB::transaction(function () use ($payload, $request) {
             $credit = Credit::create($payload);
-
-            return $credit->load('rolador');
+            $credit->load('rolador');
+            $user = $request->user();
+            $desc = $user->name . " registró un nuevo crédito de $" . number_format($credit->amount, 2) . " para " . ($credit->rolador->name ?? 'rolador desconocido') . ".";
+            activity()
+                ->performedOn($credit)
+                ->causedBy($user)
+                ->withProperties([
+                    'attributes' => $credit->getAttributes()
+                ])
+                ->log($desc);
+            return $credit;
         });
     }
 
@@ -70,24 +80,33 @@ class CreditController extends Controller
     public function update(Request $request, string $id)
     {
         $credit = Credit::findOrFail($id);
-
+        $credit->load('rolador');
         $request->validate([
             'name' => 'sometimes|string|max:255',
             'credit_amount' => 'sometimes|numeric|min:0',
             'pending_balance' => 'sometimes|numeric|min:0',
             'password' => 'required|string',
         ]);
-
         if (!Hash::check($request->password, config('auth.admin_password'))) {
             throw ValidationException::withMessages([
                 'password' => ['La contraseña es incorrecta.'],
             ]);
         }
-
         return DB::transaction(function () use ($request, $credit) {
+            $old = $credit->getOriginal();
             $credit->update($request->only(['name', 'credit_amount', 'pending_balance']));
-
-            return $credit->fresh()->load('rolador');
+            $credit->load('rolador');
+            $user = $request->user();
+            $desc = $user->name . " actualizó el crédito de $" . number_format($credit->amount, 2) . " para " . ($credit->rolador->name ?? 'rolador desconocido') . ".";
+            activity()
+                ->performedOn($credit)
+                ->causedBy($user)
+                ->withProperties([
+                    'old' => $old,
+                    'attributes' => $credit->getAttributes()
+                ])
+                ->log($desc);
+            return $credit;
         });
     }
 
@@ -99,17 +118,24 @@ class CreditController extends Controller
         $request->validate([
             'password' => 'required|current_password',
         ]);
-
-        // Verificar que no tenga pagos registrados
+        $credit->load('rolador');
         if ($credit->payments()->exists()) {
             return response()->json([
                 'message' => 'No se puede eliminar el crédito porque tiene pagos registrados.'
             ], 409);
         }
-
-        return DB::transaction(function () use ($credit) {
+        return DB::transaction(function () use ($credit, $request) {
+            $old = $credit->getAttributes();
+            $user = $request->user();
+            $desc = $user->name . " eliminó el crédito de $" . number_format($credit->amount, 2) . " para " . ($credit->rolador->name ?? 'rolador desconocido') . ".";
             $credit->delete();
-
+            activity()
+                ->performedOn($credit)
+                ->causedBy($user)
+                ->withProperties([
+                    'old' => $old
+                ])
+                ->log($desc);
             return response()->json(['message' => 'Crédito eliminado correctamente']);
         });
     }

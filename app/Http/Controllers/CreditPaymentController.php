@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Spatie\Activitylog\Models\Activity;
 
 class CreditPaymentController extends Controller
 {
@@ -34,20 +35,36 @@ class CreditPaymentController extends Controller
         ], [
             'amount.max' => 'El monto del pago excede el saldo pendiente del crédito.'
         ]);
-
         return DB::transaction(function () use ($request) {
             $credit = Credit::findOrFail($request->credit_id);
-
+            $credit->load('rolador');
+            $oldCredit = $credit->getOriginal();
             $credit->update([
                 'balance' => $credit->balance - $request->amount
             ]);
-
             $payment = CreditPayment::create([
                 'amount' => $request->amount,
                 'credit_id' => $request->credit_id,
                 'date' => now(),
             ]);
-
+            $user = $request->user();
+            $descPago = $user->name . " registró un pago de $" . number_format($payment->amount, 2) . " para el crédito de " . ($credit->rolador->name ?? 'rolador desconocido') . ".";
+            activity()
+                ->performedOn($payment)
+                ->causedBy($user)
+                ->withProperties([
+                    'attributes' => $payment->getAttributes()
+                ])
+                ->log($descPago);
+            $descCredito = $user->name . " actualizó el balance del crédito de " . ($credit->rolador->name ?? 'rolador desconocido') . " a $" . number_format($credit->balance, 2) . ".";
+            activity()
+                ->performedOn($credit)
+                ->causedBy($user)
+                ->withProperties([
+                    'old' => $oldCredit,
+                    'attributes' => $credit->getAttributes()
+                ])
+                ->log($descCredito);
             return $payment->load(['credit', 'rolador']);
         });
     }
@@ -73,16 +90,33 @@ class CreditPaymentController extends Controller
         $request->validate([
             'password' => 'required|current_password',
         ]);
-
-        DB::transaction(function () use ($credit, $payment) {
-
+        $credit->load('rolador');
+        DB::transaction(function () use ($credit, $payment, $request) {
+            $oldCredit = $credit->getOriginal();
+            $oldPayment = $payment->getAttributes();
+            $user = $request->user();
+            $descPago = $user->name . " eliminó el pago de $" . number_format($payment->amount, 2) . " para el crédito de " . ($credit->rolador->name ?? 'rolador desconocido') . ".";
             $credit->update([
                 'balance' => $credit->balance + $payment->amount
             ]);
-
             $payment->delete();
+            activity()
+                ->performedOn($payment)
+                ->causedBy($user)
+                ->withProperties([
+                    'old' => $oldPayment
+                ])
+                ->log($descPago);
+            $descCredito = $user->name . " actualizó el balance del crédito de " . ($credit->rolador->name ?? 'rolador desconocido') . " a $" . number_format($credit->balance, 2) . ".";
+            activity()
+                ->performedOn($credit)
+                ->causedBy($user)
+                ->withProperties([
+                    'old' => $oldCredit,
+                    'attributes' => $credit->getAttributes()
+                ])
+                ->log($descCredito);
         });
-
         return response()->noContent();
     }
 }

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Models\Activity;
 
 class RoladorController extends Controller
 {
@@ -75,6 +76,18 @@ class RoladorController extends Controller
 
         $rolador = Rolador::create($payload);
         $rolador->load(['category']);
+
+        $user = $request->user();
+        $desc = $user->name . " registró un nuevo rolador: " . $rolador->name . ".";
+
+        activity()
+            ->performedOn($rolador)
+            ->causedBy($user)
+            ->withProperties([
+                'attributes' => $rolador->getAttributes()
+            ])
+            ->log($desc);
+
         return $rolador;
     }
 
@@ -114,6 +127,7 @@ class RoladorController extends Controller
             $payload['photo'] = $photo->store('roladores', 'public');
         }
 
+        $old = $rolador->getOriginal();
         $oldPhoto = $rolador->photo;
         $rolador->update($payload);
 
@@ -122,13 +136,26 @@ class RoladorController extends Controller
         }
 
         $rolador->load(['category', 'currentPunishment', 'currentRentalPeriod']);
+
+        $user = $request->user();
+        $desc = $user->name . " actualizó los datos del rolador: " . $rolador->name . ".";
+
+        activity()
+            ->performedOn($rolador)
+            ->causedBy($user)
+            ->withProperties([
+                'old' => $old,
+                'attributes' => $rolador->getAttributes()
+            ])
+            ->log($desc);
+
         return $rolador;
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Rolador $rolador)
+    public function destroy(Rolador $rolador, Request $request)
     {
         Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
 
@@ -139,10 +166,23 @@ class RoladorController extends Controller
             ], 409);
         }
 
+        $old = $rolador->getAttributes();
+        $roladorName = $rolador->name;
         $rolador->delete();
         if ($rolador->photo) {
             Storage::disk('public')->delete($rolador->photo);
         }
+
+        $user = $request->user();
+        $desc = $user->name . " eliminó al rolador: " . $roladorName . ".";
+
+        activity()
+            ->performedOn($rolador)
+            ->causedBy($user)
+            ->withProperties([
+                'old' => $old
+            ])
+            ->log($desc);
 
         return response()->noContent();
     }
