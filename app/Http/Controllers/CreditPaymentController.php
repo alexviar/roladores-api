@@ -32,6 +32,7 @@ class CreditPaymentController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric|min:0.01|max:' . $credit->balance,
+            'password' => 'required|current_password',
         ], [
             'amount.max' => 'El monto del pago excede el saldo pendiente del crédito.'
         ]);
