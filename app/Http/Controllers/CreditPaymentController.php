@@ -55,6 +55,7 @@ class CreditPaymentController extends Controller
                 ->withProperties([
                     'attributes' => $payment->getAttributes()
                 ])
+                ->event('created')
                 ->log($descPago);
             $descCredito = $user->name . " actualizó el balance del crédito de " . ($credit->rolador->name ?? 'rolador desconocido') . " a $" . number_format($credit->balance, 2) . ".";
             activity()
@@ -64,6 +65,7 @@ class CreditPaymentController extends Controller
                     'old' => $oldCredit,
                     'attributes' => $credit->getAttributes()
                 ])
+                ->event('updated')
                 ->log($descCredito);
             return $payment->load(['credit', 'rolador']);
         });
@@ -106,6 +108,7 @@ class CreditPaymentController extends Controller
                 ->withProperties([
                     'old' => $oldPayment
                 ])
+                ->event('deleted')
                 ->log($descPago);
             $descCredito = $user->name . " actualizó el balance del crédito de " . ($credit->rolador->name ?? 'rolador desconocido') . " a $" . number_format($credit->balance, 2) . ".";
             activity()
@@ -115,6 +118,7 @@ class CreditPaymentController extends Controller
                     'old' => $oldCredit,
                     'attributes' => $credit->getAttributes()
                 ])
+                ->event('updated')
                 ->log($descCredito);
         });
         return response()->noContent();

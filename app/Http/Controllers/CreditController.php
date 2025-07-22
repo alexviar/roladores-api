@@ -61,6 +61,7 @@ class CreditController extends Controller
                 ->withProperties([
                     'attributes' => $credit->getAttributes()
                 ])
+                ->event('created')
                 ->log($desc);
             return $credit;
         });
@@ -105,6 +106,7 @@ class CreditController extends Controller
                     'old' => $old,
                     'attributes' => $credit->getAttributes()
                 ])
+                ->event('updated')
                 ->log($desc);
             return $credit;
         });
@@ -135,6 +137,7 @@ class CreditController extends Controller
                 ->withProperties([
                     'old' => $old
                 ])
+                ->event('deleted')
                 ->log($desc);
             return response()->json(['message' => 'Crédito eliminado correctamente']);
         });

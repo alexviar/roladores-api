@@ -47,6 +47,7 @@ class PunishmentController extends Controller
             ->withProperties([
                 'attributes' => $punishment->getAttributes()
             ])
+            ->event('created')
             ->log($desc);
 
         return $punishment;

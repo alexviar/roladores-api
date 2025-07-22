@@ -86,6 +86,7 @@ class RoladorController extends Controller
             ->withProperties([
                 'attributes' => $rolador->getAttributes()
             ])
+            ->event('created')
             ->log($desc);
 
         return $rolador;
@@ -147,6 +148,7 @@ class RoladorController extends Controller
                 'old' => $old,
                 'attributes' => $rolador->getAttributes()
             ])
+            ->event('updated')
             ->log($desc);
 
         return $rolador;
@@ -182,6 +184,7 @@ class RoladorController extends Controller
             ->withProperties([
                 'old' => $old
             ])
+            ->event('deleted')
             ->log($desc);
 
         return response()->noContent();

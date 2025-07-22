@@ -53,6 +53,7 @@ class RentalPeriodController extends Controller
             ->withProperties([
                 'attributes' => $rentalPeriod->getAttributes()
             ])
+            ->event('created')
             ->log($desc);
         return $rentalPeriod;
     }
@@ -103,6 +104,7 @@ class RentalPeriodController extends Controller
                 'old' => $old,
                 'attributes' => $rentalPeriod->getAttributes()
             ])
+            ->event('updated')
             ->log($desc);
         return $rentalPeriod;
     }
@@ -126,6 +128,7 @@ class RentalPeriodController extends Controller
             ->withProperties([
                 'old' => $old
             ])
+            ->event('deleted')
             ->log($desc);
         return response()->noContent();
     }
