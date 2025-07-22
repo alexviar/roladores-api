@@ -102,9 +102,13 @@ class DashboardController extends Controller
     {
         Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
 
-        $activities = Activity::with('causer')
-            ->latest()
-            ->limit(50)
+        $onlyRoladorEdits = $request->boolean('only_rolador_edits');
+        $query = Activity::with('causer')->latest();
+        if ($onlyRoladorEdits) {
+            $query->where('event', 'updated')
+                ->where('subject_type', Rolador::class);
+        }
+        $activities = $query->limit(50)
             ->get()
             ->map(function ($activity) {
                 return [
