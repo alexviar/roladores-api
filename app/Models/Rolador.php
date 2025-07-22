@@ -34,10 +34,12 @@ class Rolador extends Model
         return Attribute::get(function () {
             $totalActiveCredits = $this->credits()->where('balance', '>', 0)->count();
             $totalBalance = $this->credits()->sum('balance');
+            $latestActiveCredit = $this->credits()->where('balance', '>', 0)->latest()->first();
 
             return [
                 'activeCreditsCount' => (int) $totalActiveCredits,
                 'totalPendingBalance' => (float) $totalBalance,
+                'latestActiveCredit' => $latestActiveCredit,
             ];
         });
     }
