@@ -69,7 +69,7 @@ class DashboardController extends Controller
     {
         Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
 
-        $limit = 5;
+        $limit = 25;
         $count = Category::count();
 
         // Get all categories with their rolador counts
