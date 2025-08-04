@@ -94,6 +94,10 @@ class DashboardController extends Controller
             $query->whereDate('created_at', $date);
         });
 
+        $request->whenFilled('search', function ($search) use ($query) {
+            $query->where('description', 'like', "%{$search}%");
+        });
+
         $activities = $query
             ->paginate();
 
