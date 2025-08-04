@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Filesystem\LocalFilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class Rolador extends Model
 {
@@ -28,6 +29,11 @@ class Rolador extends Model
     protected $appends = [
         'credits_summary',
     ];
+
+    public function visits(): HasMany
+    {
+        return $this->hasMany(RoladorVisit::class);
+    }
 
     public function creditsSummary(): Attribute
     {

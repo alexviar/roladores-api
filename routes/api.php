@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PunishmentController;
 use App\Http\Controllers\RentalPeriodController;
 use App\Http\Controllers\RoladorController;
+use App\Http\Controllers\RoladorVisitController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -95,4 +96,12 @@ Route::controller(\App\Http\Controllers\CreditController::class)
                 Route::patch('{payment}', 'update');
                 Route::delete('{payment}', 'destroy');
             });
+    });
+
+Route::controller(RoladorVisitController::class)
+    ->prefix('visits')
+    // ->middleware('auth:sanctum')
+    ->group(function () {
+        Route::get('', 'index');
+        Route::post('', 'store');
     });
