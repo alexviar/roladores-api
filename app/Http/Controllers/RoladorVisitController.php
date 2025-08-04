@@ -27,6 +27,15 @@ class RoladorVisitController extends Controller
             $query->having('visits_count', $visited ? '>' : '=', 0);
         });
 
+        $request->whenFilled('search', function ($search) use ($query) {
+            $query->where(
+                fn($q) => $q
+                    ->where('name', 'like', "%$search%")
+                    ->orWhere('name', 'like', "$search%")
+                    ->orWhere('name', 'like', "%$search")
+            );
+        });
+
         $result = $query->paginate();
         return $result;
     }
