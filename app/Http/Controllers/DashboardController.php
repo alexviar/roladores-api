@@ -103,7 +103,7 @@ class DashboardController extends Controller
         Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
 
         $onlyRoladorEdits = $request->boolean('only_rolador_edits');
-        $query = Activity::with('causer')->where('created_at', '>=', today()->format('Y-m-d'))->latest();
+        $query = Activity::with('causer')->whereDate('created_at', $request->date ?: today()->format('Y-m-d'))->latest();
         if ($onlyRoladorEdits) {
             $query->where('event', 'updated')
                 ->where('subject_type', Rolador::class);
