@@ -13,4 +13,9 @@ class Category extends Model
     protected $fillable = [
         'name'
     ];
+
+    public function roladores()
+    {
+        return $this->hasMany(Rolador::class);
+    }
 }

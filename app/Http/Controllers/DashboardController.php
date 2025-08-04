@@ -69,30 +69,7 @@ class DashboardController extends Controller
     {
         Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
 
-        $limit = 150;
-        $count = Category::count();
-
-        // Get all categories with their rolador counts
-        $topCategories = Category::select('categories.id', 'categories.name')
-            ->selectRaw('COUNT(roladors.id) as rolador_count')
-            ->leftJoin('roladors', 'categories.id', '=', 'roladors.category_id')
-            ->groupBy('categories.id', 'categories.name')
-            ->orderBy('rolador_count', 'desc')
-            ->limit($count == $limit ? $limit : $limit - 1)
-            ->get();
-
-
-        // If we have more than 12 categories, group the smaller ones into "Others"
-        if ($count > $limit) {
-            $otherCategories = Rolador::whereNotIn('category_id', $topCategories->pluck('id')->toArray())->count();
-
-            $topCategories->push([
-                'name' => 'Otras',
-                'rolador_count' => $otherCategories
-            ]);
-        }
-
-        return response()->json($topCategories);
+        return Category::withCount(['roladores'])->paginate();
     }
 
     /**
@@ -103,30 +80,16 @@ class DashboardController extends Controller
         Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
 
         $onlyRoladorEdits = $request->boolean('only_rolador_edits');
-        $query = Activity::with('causer')->whereDate('created_at', $request->date ?: today()->format('Y-m-d'))->latest();
+        $query = Activity::with('causer')->whereDate('created_at', $request->input('filter.date') ?: today()->format('Y-m-d'))->latest();
+
         if ($onlyRoladorEdits) {
             $query->where('event', 'updated')
                 ->where('subject_type', Rolador::class);
         }
-        $activities = $query->limit(50)
-            ->get()
-            ->map(function ($activity) {
-                return [
-                    'id' => $activity->id,
-                    'description' => $activity->description,
-                    'causer' => $activity->causer ? [
-                        'id' => $activity->causer->id,
-                        'name' => $activity->causer->name,
-                        'email' => $activity->causer->email,
-                    ] : null,
-                    'subject_type' => $activity->subject_type,
-                    'subject_id' => $activity->subject_id,
-                    'properties' => $activity->properties,
-                    'created_at' => $activity->created_at,
-                ];
-            });
+        $activities = $query
+            ->paginate();
 
-        return response()->json($activities);
+        return $activities;
     }
 
     /**
