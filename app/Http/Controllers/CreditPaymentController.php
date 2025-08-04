@@ -39,7 +39,7 @@ class CreditPaymentController extends Controller
         return DB::transaction(function () use ($request) {
             $credit = Credit::findOrFail($request->credit_id);
             $credit->load('rolador');
-            $oldCredit = $credit->getOriginal();
+            // $oldCredit = $credit->getOriginal();
             $credit->update([
                 'balance' => $credit->balance - $request->amount
             ]);
@@ -49,7 +49,7 @@ class CreditPaymentController extends Controller
                 'date' => now(),
             ]);
             $user = $request->user();
-            $descPago = $user->name . " registró un pago de $" . number_format($payment->amount, 2) . " para el crédito de " . ($credit->rolador->name ?? 'rolador desconocido') . ".";
+            $descPago = $user->name . " registró un pago de $" . number_format($payment->amount, 2) . " para el crédito <b><i>\"" . $credit->title . "\"</i></b> del rolador <b>" . ($credit->rolador->name ?? '<i>desconocido</i>') . "</b>.";
             activity()
                 ->performedOn($payment)
                 ->causedBy($user)
@@ -58,16 +58,16 @@ class CreditPaymentController extends Controller
                 ])
                 ->event('created')
                 ->log($descPago);
-            $descCredito = $user->name . " actualizó el balance del crédito de " . ($credit->rolador->name ?? 'rolador desconocido') . " a $" . number_format($credit->balance, 2) . ".";
-            activity()
-                ->performedOn($credit)
-                ->causedBy($user)
-                ->withProperties([
-                    'old' => $oldCredit,
-                    'attributes' => $credit->getAttributes()
-                ])
-                ->event('updated')
-                ->log($descCredito);
+            // $descCredito = $user->name . " actualizó el balance del crédito de " . ($credit->rolador->name ?? 'rolador desconocido') . " a $" . number_format($credit->balance, 2) . ".";
+            // activity()
+            //     ->performedOn($credit)
+            //     ->causedBy($user)
+            //     ->withProperties([
+            //         'old' => $oldCredit,
+            //         'attributes' => $credit->getAttributes()
+            //     ])
+            //     ->event('updated')
+            //     ->log($descCredito);
             return $payment->load(['credit', 'rolador']);
         });
     }
@@ -95,14 +95,14 @@ class CreditPaymentController extends Controller
         ]);
         $credit->load('rolador');
         DB::transaction(function () use ($credit, $payment, $request) {
-            $oldCredit = $credit->getOriginal();
+            // $oldCredit = $credit->getOriginal();
             $oldPayment = $payment->getAttributes();
             $user = $request->user();
-            $descPago = $user->name . " eliminó el pago de $" . number_format($payment->amount, 2) . " para el crédito de " . ($credit->rolador->name ?? 'rolador desconocido') . ".";
             $credit->update([
                 'balance' => $credit->balance + $payment->amount
             ]);
             $payment->delete();
+            $descPago = $user->name . " eliminó el pago de <b>$" . number_format($payment->amount, 2) . "</b> para el crédito <b><i>\"" . $credit->title . "\"</i></b> del rolador <b>" . ($credit->rolador->name ?? '<i>desconocido</i>') . "</b>.";
             activity()
                 ->performedOn($payment)
                 ->causedBy($user)
@@ -111,16 +111,16 @@ class CreditPaymentController extends Controller
                 ])
                 ->event('deleted')
                 ->log($descPago);
-            $descCredito = $user->name . " actualizó el balance del crédito de " . ($credit->rolador->name ?? 'rolador desconocido') . " a $" . number_format($credit->balance, 2) . ".";
-            activity()
-                ->performedOn($credit)
-                ->causedBy($user)
-                ->withProperties([
-                    'old' => $oldCredit,
-                    'attributes' => $credit->getAttributes()
-                ])
-                ->event('updated')
-                ->log($descCredito);
+            // $descCredito = $user->name . " actualizó el balance del crédito de " . ($credit->rolador->name ?? 'rolador desconocido') . " a $" . number_format($credit->balance, 2) . ".";
+            // activity()
+            //     ->performedOn($credit)
+            //     ->causedBy($user)
+            //     ->withProperties([
+            //         'old' => $oldCredit,
+            //         'attributes' => $credit->getAttributes()
+            //     ])
+            //     ->event('updated')
+            //     ->log($descCredito);
         });
         return response()->noContent();
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\CreditPayment;
 use App\Models\RentalPeriod;
 use App\Models\Rolador;
 use App\Models\User;
@@ -79,13 +80,20 @@ class DashboardController extends Controller
     {
         Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
 
-        $onlyRoladorEdits = $request->boolean('only_rolador_edits');
-        $query = Activity::with('causer')->whereDate('created_at', $request->input('filter.date') ?: today()->format('Y-m-d'))->latest();
+        $query = Activity::with('causer')->latest();
 
-        if ($onlyRoladorEdits) {
-            $query->where('event', 'updated')
-                ->where('subject_type', Rolador::class);
-        }
+        $request->whenFilled('filter.subject', function ($subject) use ($query) {
+            if ($subject === 'payments') {
+                $query->whereIn('subject_type', [CreditPayment::class, RentalPeriod::class]);
+            } else if ($subject === 'roladores') {
+                $query->where('subject_type', Rolador::class);
+            }
+        });
+
+        $request->whenFilled('filter.date', function ($date) use ($query) {
+            $query->whereDate('created_at', $date);
+        });
+
         $activities = $query
             ->paginate();
 

@@ -46,7 +46,7 @@ class RentalPeriodController extends Controller
             'rolador_id' => $rolador->id
         ]);
         $user = $request->user();
-        $desc = $user->name . " registró un pago semanal de $" . number_format($rentalPeriod->amount_due, 2) . " para " . ($rolador->name ?? 'rolador desconocido') . ".";
+        $desc = $user->name . " registró un pago de <b>$" . number_format($rentalPeriod->amount_due, 2) . "</b> del rolador <b>" . ($rolador->name ?? '<i>desconocido</i>') . "</b>.";
         activity()
             ->performedOn($rentalPeriod)
             ->causedBy($user)
@@ -96,7 +96,7 @@ class RentalPeriodController extends Controller
         ]);
         $user = $request->user();
         $rolador = $rentalPeriod->rolador;
-        $desc = $user->name . " marcó como pagado el periodo semanal de " . ($rolador->name ?? 'rolador desconocido') . " por $" . number_format($rentalPeriod->amount_due, 2) . ".";
+        $desc = $user->name . " marcó como pagado el pago de <b>$" . number_format($rentalPeriod->amount_due, 2) . "</b> del rolador <b>" . ($rolador->name ?? '<i>desconocido</i>') . "</b>.";
         activity()
             ->performedOn($rentalPeriod)
             ->causedBy($user)
@@ -120,7 +120,7 @@ class RentalPeriodController extends Controller
         ]);
         $old = $rentalPeriod->getAttributes();
         $rolador = $rentalPeriod->rolador;
-        $desc = $request->user()->name . " eliminó el pago semanal de " . ($rolador->name ?? 'rolador desconocido') . " por $" . number_format($rentalPeriod->amount_due, 2) . ".";
+        $desc = $request->user()->name . " eliminó el pago de <b>$" . number_format($rentalPeriod->amount_due, 2) . "</b> del rolador <b>" . ($rolador->name ?? '<i>desconocido</i>') . "</b>.";
         $rentalPeriod->delete();
         activity()
             ->performedOn($rentalPeriod)

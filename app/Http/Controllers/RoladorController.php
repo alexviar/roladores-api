@@ -82,7 +82,7 @@ class RoladorController extends Controller
         $rolador->load(['category']);
 
         $user = $request->user();
-        $desc = $user->name . " registró un nuevo rolador: " . $rolador->name . ".";
+        $desc = $user->name . " registró un nuevo rolador: <b>" . $rolador->name . "<b>.";
 
         activity()
             ->performedOn($rolador)
@@ -143,7 +143,7 @@ class RoladorController extends Controller
         $rolador->load(['category', 'currentPunishment', 'currentRentalPeriod']);
 
         $user = $request->user();
-        $desc = $user->name . " actualizó los datos del rolador: " . $rolador->name . ".";
+        $desc = $user->name . " actualizó los datos del rolador: <b>" . $rolador->name . "</b>.";
 
         activity()
             ->performedOn($rolador)
@@ -180,7 +180,7 @@ class RoladorController extends Controller
         }
 
         $user = $request->user();
-        $desc = $user->name . " eliminó al rolador: " . $roladorName . ".";
+        $desc = $user->name . " eliminó al rolador: <b>" . $roladorName . "</b>.";
 
         activity()
             ->performedOn($rolador)

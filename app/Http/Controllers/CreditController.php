@@ -54,7 +54,7 @@ class CreditController extends Controller
             $credit = Credit::create($payload);
             $credit->load('rolador');
             $user = $request->user();
-            $desc = $user->name . " registró un nuevo crédito de $" . number_format($credit->amount, 2) . " para " . ($credit->rolador->name ?? 'rolador desconocido') . ".";
+            $desc = $user->name . " registró un nuevo crédito de <b>$" . number_format($credit->amount, 2) . "</b> con motivo <b><i>\"" . $credit->title . "\"</i></b> para el rolador <b>" . ($credit->rolador->name ?? '<i>desconocido</i>') . "</b>.";
             activity()
                 ->performedOn($credit)
                 ->causedBy($user)
@@ -98,7 +98,7 @@ class CreditController extends Controller
             $credit->update($request->only(['name', 'credit_amount', 'pending_balance']));
             $credit->load('rolador');
             $user = $request->user();
-            $desc = $user->name . " actualizó el crédito de $" . number_format($credit->amount, 2) . " para " . ($credit->rolador->name ?? 'rolador desconocido') . ".";
+            $desc = $user->name . " actualizó el crédito <b><i>\"" . $credit->title . "\"</i></b> del rolador <b>" . ($credit->rolador->name ?? '<i>desconocido</i>') . "</b>.";
             activity()
                 ->performedOn($credit)
                 ->causedBy($user)
@@ -129,7 +129,7 @@ class CreditController extends Controller
         return DB::transaction(function () use ($credit, $request) {
             $old = $credit->getAttributes();
             $user = $request->user();
-            $desc = $user->name . " eliminó el crédito de $" . number_format($credit->amount, 2) . " para " . ($credit->rolador->name ?? 'rolador desconocido') . ".";
+            $desc = $user->name . " eliminó el crédito <b><i>\"" . $credit->title . "\"</i></b> del rolador <b>" . ($credit->rolador->name ?? '<i>desconocido</i>') . "</b>.";
             $credit->delete();
             activity()
                 ->performedOn($credit)
