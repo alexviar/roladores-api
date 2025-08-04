@@ -2,4 +2,4 @@
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('activitylog:clean-before-today')->daily();
+Schedule::command('activitylog:clean')->daily();
