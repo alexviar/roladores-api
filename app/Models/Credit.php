@@ -21,7 +21,8 @@ class Credit extends Model
     {
         return [
             'amount' => 'float',
-            'balance' => 'float'
+            'balance' => 'float',
+            'rolador_id' => 'integer',
         ];
     }
 

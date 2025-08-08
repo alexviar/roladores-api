@@ -59,7 +59,7 @@ class CreditController extends Controller
                 ->performedOn($credit)
                 ->causedBy($user)
                 ->withProperties([
-                    'attributes' => $credit->getAttributes()
+                    'attributes' => $credit->fresh()->getAttributes()
                 ])
                 ->event('created')
                 ->log($desc);
@@ -104,7 +104,7 @@ class CreditController extends Controller
                 ->causedBy($user)
                 ->withProperties([
                     'old' => $old,
-                    'attributes' => $credit->getAttributes()
+                    'attributes' => $credit->fresh()->getAttributes()
                 ])
                 ->event('updated')
                 ->log($desc);

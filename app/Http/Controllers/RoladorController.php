@@ -88,7 +88,7 @@ class RoladorController extends Controller
             ->performedOn($rolador)
             ->causedBy($user)
             ->withProperties([
-                'attributes' => $rolador->getAttributes()
+                'attributes' => $rolador->fresh()->getAttributes()
             ])
             ->event('created')
             ->log($desc);
@@ -150,7 +150,7 @@ class RoladorController extends Controller
             ->causedBy($user)
             ->withProperties([
                 'old' => $old,
-                'attributes' => $rolador->getAttributes()
+                'attributes' => $rolador->fresh()->getAttributes()
             ])
             ->event('updated')
             ->log($desc);

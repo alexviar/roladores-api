@@ -51,7 +51,7 @@ class RentalPeriodController extends Controller
             ->performedOn($rentalPeriod)
             ->causedBy($user)
             ->withProperties([
-                'attributes' => $rentalPeriod->getAttributes()
+                'attributes' => $rentalPeriod->fresh()->getAttributes()
             ])
             ->event('created')
             ->log($desc);
@@ -102,7 +102,7 @@ class RentalPeriodController extends Controller
             ->causedBy($user)
             ->withProperties([
                 'old' => $old,
-                'attributes' => $rentalPeriod->getAttributes()
+                'attributes' => $rentalPeriod->fresh()->getAttributes()
             ])
             ->event('updated')
             ->log($desc);

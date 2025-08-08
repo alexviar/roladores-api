@@ -54,7 +54,7 @@ class CreditPaymentController extends Controller
                 ->performedOn($payment)
                 ->causedBy($user)
                 ->withProperties([
-                    'attributes' => $payment->getAttributes()
+                    'attributes' => $payment->fresh()->getAttributes()
                 ])
                 ->event('created')
                 ->log($descPago);

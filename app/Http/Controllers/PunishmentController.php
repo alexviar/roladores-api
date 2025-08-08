@@ -45,7 +45,7 @@ class PunishmentController extends Controller
             ->performedOn($punishment)
             ->causedBy($user)
             ->withProperties([
-                'attributes' => $punishment->getAttributes()
+                'attributes' => $punishment->fresh()->getAttributes()
             ])
             ->event('created')
             ->log($desc);
