@@ -66,11 +66,17 @@ class DashboardController extends Controller
      * Get statistics for roladores by category, showing only the most significant categories
      * and grouping the rest under "Others"
      */
-    public function categoryDistribution()
+    public function categoryDistribution(Request $request)
     {
         Gate::allowIf(fn(User $user) => $user->email === 'admin@plazadelvestido.com');
 
-        return Category::withCount(['roladores'])->paginate();
+        $query = Category::query();
+
+        $request->whenFilled('search', function ($searchTerm) use ($query) {
+            $query->where('name', 'like', "%$searchTerm%");
+        });
+
+        return $query->withCount(['roladores'])->paginate();
     }
 
     /**
