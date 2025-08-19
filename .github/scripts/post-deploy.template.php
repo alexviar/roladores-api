@@ -46,8 +46,20 @@ use Symfony\Component\Console\Output\BufferedOutput;
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 
 // ==================== EJECUTAR COMANDOS ====================
+function has_cache()
+{
+    $dir = __DIR__ . '/../bootstrap/cache';
+    if (!is_dir($dir)) {
+        return false;
+    }
+
+    $files = scandir($dir);
+
+    return count($files) === 1;
+}
+
 $commands = [
-    ['optimize:clear'],
+    has_cache() ? ['optimize:clear'] : [],
     ['migrate', '--force' => true],
     file_exists(__DIR__ . '/storage') ? [] : ['storage:link'],
     ['optimize']
